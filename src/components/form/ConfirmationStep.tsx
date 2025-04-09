@@ -23,6 +23,7 @@ export default function ConfirmationStep({ formData }: ConfirmationStepProps) {
 
   const handleSubmit = async () => {
     setLoading(true)
+
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -53,18 +54,31 @@ export default function ConfirmationStep({ formData }: ConfirmationStepProps) {
       uploadFile(formData.rawFiles?.salarySlip, 'salary_slip'),
     ])
 
-    const principal = Number(formData.amount) - (formData.apport || 0)
+    // ✅ Parse and validate numeric values safely
+    const amount = Number(formData.amount) || 0
+    const duration = Number(formData.duration) || 0
+    const apport = formData.apport ? Number(formData.apport) : null
+    const dependents = formData.dependents ? Number(formData.dependents) : 0
+
+    // Optional early validation
+    if (!amount || !duration) {
+      toast.error("Veuillez remplir le montant et la durée.")
+      setLoading(false)
+      return
+    }
+
+    const principal = amount - (apport || 0)
     const mensualite = Math.round(
-      (principal * 0.007) / (1 - Math.pow(1 + 0.007, -formData.duration))
+      (principal * 0.007) / (1 - Math.pow(1 + 0.007, -duration))
     )
 
     const { error } = await supabase.from('loan_requests').insert([{
       id: loanId,
       client_type: formData.clientType,
       loan_type: formData.loanType,
-      amount: Number(formData.amount),
-      duration: Number(formData.duration),
-      apport: formData.apport || null,
+      amount,
+      duration,
+      apport,
       mensualite,
       full_name: formData.fullName,
       email: user.email,
@@ -73,7 +87,7 @@ export default function ConfirmationStep({ formData }: ConfirmationStepProps) {
       cin: formData.cin,
       dob: formData.dob,
       marital_status: formData.maritalStatus,
-      dependents: formData.dependents,
+      dependents,
       cin_file_url: cin,
       income_proof_url: income,
       bank_statement_url: bank,
