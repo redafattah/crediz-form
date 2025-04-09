@@ -72,28 +72,29 @@ export default function ConfirmationStep({ formData }: ConfirmationStepProps) {
       (principal * 0.007) / (1 - Math.pow(1 + 0.007, -duration))
     )
 
-    const { error } = await supabase.from('loan_requests').insert([{
-      id: loanId,
-      client_type: formData.clientType,
-      loan_type: formData.loanType,
-      amount,
-      duration,
-      apport,
-      mensualite,
-      full_name: formData.fullName,
-      email: user.email,
-      phone: formData.phone,
-      address: formData.address,
-      cin: formData.cin,
-      dob: formData.dob,
-      marital_status: formData.maritalStatus,
-      dependents,
-      cin_file_url: cin,
-      income_proof_url: income,
-      bank_statement_url: bank,
-      salary_slip_url: slip,
-      status: 'en attente',
-    }])
+const { error } = await supabase.from('loan_requests').insert([{
+  id: loanId,
+  client_type: formData.clientType,
+  loan_type: formData.loanType,
+  amount,
+  duration,
+  apport,
+  mensualite,
+  full_name: formData.fullName,
+  email: user.email,
+  phone: formData.phone,
+  address: formData.address,
+  cin: formData.cin,
+  dob: formData.dob,
+  marital_status: formData.maritalStatus,
+  dependents,
+  cin_file_url: cin,
+  income_proof_url: income,
+  bank_statement_url: bank,
+  salary_slip_url: slip,
+  status: 'en attente',
+}])
+
 
     if (error) {
       console.error(error.message)
